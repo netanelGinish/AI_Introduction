@@ -145,6 +145,7 @@ data.head()
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20, random_state=42)
 
 Y.hist()
+plt.show()
 # Question 1.a - Regrestion
 # we'll try out three regresion models and compair them.
 # 1. linear and polynomial regrestion
@@ -171,7 +172,6 @@ p_reg = Pipeline([('poly', PolynomialFeatures(degree=2)),
                   ('linear', LinearRegression(fit_intercept=False))])
 
 p_reg = p_reg.fit(X_train, Y_train)
-p_reg.named_steps['linear'].coef_
 
 from sklearn.metrics import mean_squared_error
 
@@ -242,7 +242,7 @@ history = DNN_model.fit(X_train, Y_train, epochs=100, validation_split=0.3)
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(10, 5))
 plt.plot(history.history['mean_squared_error'])
 plt.plot(history.history['val_mean_squared_error'])
 plt.title('mean_squared_error')
@@ -251,7 +251,7 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 # summarize history for loss
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(10, 5))
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('model loss')
@@ -293,7 +293,6 @@ def plot_silhouette_score(clustering_method, clusters, s_scores):
     # plt.axhline(0, lw=0.5, color='black')
     # plt.axvline(0, lw=0.5, color='black')
     plt.legend()
-    plt.show()
 
 
 # # # # # BIRCH
@@ -304,6 +303,7 @@ for i in clusters:
     s_scores.append(silhouette_score(X_train, br.labels_))
 
 plot_silhouette_score('Birch', clusters, s_scores)
+plt.show()
 
 # Optimize Birch clustering with 4 clusters:
 optimize_br = Birch(n_clusters=4).fit(X_train)
@@ -317,6 +317,7 @@ for i in clusters:
     s_scores.append(silhouette_score(X_train, k_means.labels_))
 
 plot_silhouette_score('K-Means', clusters, s_scores)
+plt.show()
 
 # Optimize K-Means clustering 5 clusters:
 
@@ -364,11 +365,11 @@ br_qualities_dict = mean_quality_for_cluster_dictionary(train_with_clusters, 'br
 train_with_clusters['km_cluster'] = optimize_km.labels_
 km_qualities_dict = mean_quality_for_cluster_dictionary(train_with_clusters, 'km_cluster')
 
-print('ms_qualities_dict: ', ms_qualities_dict)
-print()
 print('br_qualities_dict: ', br_qualities_dict)
 print()
 print('km_qualities_dict: ', km_qualities_dict)
+print()
+print('ms_qualities_dict: ', ms_qualities_dict)
 print()
 
 test = X_test.copy()
@@ -376,15 +377,15 @@ test['quality'] = Y_test
 
 # Birch:
 br_test_labels = optimize_br.predict(X_test)
-print('Birch score: ', cluster_score(br_qualities_dict, br_test_labels, test['quality']))
+print('Birch rmse score: ', cluster_score(br_qualities_dict, br_test_labels, test['quality']))
 
 # K-Means
 km_test_labels = optimize_km.predict(X_test)
-print('K-Means score: ', cluster_score(km_qualities_dict, km_test_labels, test['quality']))
+print('K-Means rmse score: ', cluster_score(km_qualities_dict, km_test_labels, test['quality']))
 
 # MeanShift:
 ms_test_labels = optimize_ms.predict(X_test)
-print('Mean Shift score: ', cluster_score(ms_qualities_dict, ms_test_labels, test['quality']))
+print('Mean Shift rmse score: ', cluster_score(ms_qualities_dict, ms_test_labels, test['quality']))
 
 
 # # # # # # # # Dimension Reduction
@@ -519,18 +520,61 @@ def angle(v1, v2):
     return math.acos(dotproduct(v1, v2) / (length(v1) * length(v2)))
 
 
-red_file = 'normalized_clean_data_red.csv'
-white_file = 'normalized_clean_data_white.csv'
+def continues_jacard(vec1: np.ndarray, vec2: np.ndarray):
+    numerator = 0
+    denominator = 0
+    if len(vec1) == len(vec2):
+        for i in range(0, len(vec1)):
+            numerator += min(vec1[i], vec2[i])
+            denominator += max(vec1[i], vec2[i])
+        return numerator / denominator
+    return -1
+
+
+def vectorComperesion(vec1, vec1_name: str, vec2, vec2_name: str):
+    print(f'radial angle between {vec1_name} and {vec2_name} = {angle(vec1, vec2)}')
+    print(f'cosine test between {vec1_name} and {vec2_name} = {math.cos(angle(vec1, vec2))}')
+    print(f'euclidean distance between {vec1_name} and {vec2_name} = {np.linalg.norm(vec1 - vec2)}')
+    jac = continues_jacard(vec1, vec2)
+    if jac != -1:
+        print(f'jaccard score between {vec1_name} and {vec2_name} = {jac}')
+    else:
+        print(f'jaccard Error for {vec1_name} and {vec2_name}')
+
+
+def threeVectorComperesion(vec1, vec1_name: str, vec2, vec2_name: str, vec3, vec3_name: str):
+    print(f'{vec1_name} is {vec1}')
+    print(f'{vec2_name} is {vec2}')
+    print(f'{vec3_name} is {vec3}\n\n')
+
+    print(f'magnitude of {vec1_name} is {np.linalg.norm(vec1)}')
+    print(f'magnitude of {vec2_name} is {np.linalg.norm(vec2)}')
+    print(f'magnitude of {vec3_name} is {np.linalg.norm(vec3)}\n\n')
+    vec_list = [(vec1, vec1_name), (vec2, vec2_name), (vec3, vec3_name)]
+    for i in range(0, 2):
+        for j in range(i + 1, 3):
+            vectorComperesion(vec_list[i][0], vec_list[i][1], vec_list[j][0], vec_list[j][1])
+
+
+red_file = 'clean_red.csv'
+white_file = 'clean_white.csv'
 red_data = pd.read_csv(red_file)
 white_data = pd.read_csv(white_file)
-
 all_data = pd.concat([red_data, white_data])
+
+all_mean = all_data.drop(['quality'], axis=1).mean()
+all_std = all_data.drop(['quality'], axis=1).std()
+normalized_all_X = (all_data.drop(['quality'], axis=1) - all_mean) / all_std
+
+normalized_red_X = (red_data.drop(['quality'], axis=1) - all_mean) / all_std
+normalized_white_X = (white_data.drop(['quality'], axis=1) - all_mean) / all_std
+
 red_X_train, red_X_test, red_y_train, red_y_test = \
-    train_test_split(red_data.drop(['quality'], axis=1), red_data['quality'], test_size=0.20, random_state=42)
+    train_test_split(normalized_red_X, red_data['quality'], test_size=0.20, random_state=42)
 white_X_train, white_X_test, white_y_train, white_y_test = \
-    train_test_split(white_data.drop(['quality'], axis=1), white_data['quality'], test_size=0.20, random_state=42)
+    train_test_split(normalized_white_X, white_data['quality'], test_size=0.20, random_state=42)
 all_X_train, all_X_test, all_y_train, all_y_test = \
-    train_test_split(all_data.drop(['quality'], axis=1), all_data['quality'], test_size=0.20, random_state=42)
+    train_test_split(normalized_all_X, all_data['quality'], test_size=0.20, random_state=42)
 
 # Linear Regrestion
 
@@ -542,13 +586,8 @@ red_lin_reg_vec = np.array(red_lin_reg.coef_)
 white_lin_reg_vec = np.array(white_lin_reg.coef_)
 all_lin_reg_vec = np.array(all_lin_reg.coef_)
 
-print(f'size of red_vec = {np.linalg.norm(red_lin_reg_vec)}')
-print(f'size of white_vec = {np.linalg.norm(white_lin_reg_vec)}')
-print(f'size of all_vec = {np.linalg.norm(all_lin_reg_vec)}')
-
-print(f'angle between red and white = {angle(red_lin_reg_vec, white_lin_reg_vec)}')
-print(f'angle between all and white = {angle(all_lin_reg_vec, white_lin_reg_vec)}')
-print(f'angle between red and all = {angle(red_lin_reg_vec, all_lin_reg_vec)}')
+threeVectorComperesion(red_lin_reg_vec, 'red_lin_reg_vec', white_lin_reg_vec, 'white_lin_reg_vec',
+                       all_lin_reg_vec, 'all_lin_reg_vec')
 
 # linear SVM
 
@@ -561,45 +600,56 @@ red_lin_SVM_vec = np.array(red_lin_SVM.coef_[0])
 white_lin_SVM_vec = np.array(white_lin_SVM.coef_[0])
 all_lin_SVM_vec = np.array(all_lin_SVM.coef_[0])
 
-print(f'size of red_vec = {np.linalg.norm(red_lin_SVM_vec)}')
-print(f'size of white_vec = {np.linalg.norm(white_lin_SVM_vec)}')
-print(f'size of all_vec = {np.linalg.norm(all_lin_SVM_vec)}')
-
-print(f'angle between red and white = {angle(red_lin_SVM_vec, white_lin_SVM_vec)}')
-print(f'angle between all and white = {angle(all_lin_SVM_vec, white_lin_SVM_vec)}')
-print(f'angle between red and all = {angle(red_lin_SVM_vec, all_lin_SVM_vec)}')
+threeVectorComperesion(red_lin_SVM_vec, 'red_lin_SVM_vec', white_lin_SVM_vec, 'white_lin_SVM_vec',
+                       all_lin_SVM_vec, 'all_lin_SVM_vec')
 
 # PCA
-from sklearn.decomposition import PCA
-
 red_pca = PCA(n_components=3)
 white_pca = PCA(n_components=3)
 all_pca = PCA(n_components=3)
 
-red_pca.fit(red_data.drop(['quality'], axis=1))
-white_pca.fit(white_data.drop(['quality'], axis=1))
-all_pca.fit(all_data.drop(['quality'], axis=1))
+red_pca.fit(normalized_red_X)
+white_pca.fit(normalized_white_X)
+all_pca.fit(normalized_all_X)
 
-print(red_pca.components_)
-print(white_pca.components_)
-print(all_pca.components_)
-
+sns.set(rc={'figure.figsize': (10, 8)})
+corr = pd.DataFrame(np.corrcoef(red_pca.components_, white_pca.components_),
+                    columns=['red0', 'red1', 'red2', 'white0', 'white1', 'white2'])
+sns.heatmap(corr,
+            xticklabels=corr.columns.values,
+            yticklabels=corr.columns.values,
+            cmap="YlGnBu",
+            annot=True,
+            fmt=".2f")
+plt.show()
 red_pca_vec_arr = [np.array(red_pca.components_[0]), np.array(red_pca.components_[1]), np.array(red_pca.components_[2])]
 white_pca_vec_arr = [np.array(white_pca.components_[0]), np.array(white_pca.components_[1]),
                      np.array(white_pca.components_[2])]
 all_pca_vec_arr = [np.array(all_pca.components_[0]), np.array(all_pca.components_[1]), np.array(all_pca.components_[2])]
 
-for v in red_pca_vec_arr:
-    print(f'size of red_vec = {np.linalg.norm(v)}')
-for v in white_pca_vec_arr:
-    print(f'size of white_vec = {np.linalg.norm(white_pca_vec_arr)}')
-for v in all_pca_vec_arr:
-    print(f'size of all_vec = {np.linalg.norm(all_pca_vec_arr)}')
 
-for i in range(2):
-    print(f'{i} angle between red and white = {angle(red_pca_vec_arr[i], white_pca_vec_arr[i])}')
-    print(f'{i} angle between all and white = {angle(all_pca_vec_arr[i], white_pca_vec_arr[i])}')
-    print(f'{i} angle between red and all = {angle(red_pca_vec_arr[i], all_pca_vec_arr[i])}')
+def compareTwoPCAs(PCA_vecs1, PCA_vecs1_name: str, PCA_vecs2, PCA_vecs2_name: str):
+    table = []
+    for i in range(0, len(PCA_vecs1)):
+        table.append([])
+        for j in range(0, len(PCA_vecs2)):
+            table[i].append(math.cos(angle(PCA_vecs1[i], PCA_vecs2[j])))
+    sns.set(rc={'figure.figsize': (10, 8)})
+    df = pd.DataFrame(table, columns=[PCA_vecs2_name + ' 0', PCA_vecs2_name + ' 1', PCA_vecs2_name + ' 2'],
+                      index=[PCA_vecs1_name + ' 0', PCA_vecs1_name + ' 1', PCA_vecs1_name + ' 2'])
+    sns.heatmap(df,
+                cmap="YlGnBu",
+                annot=True,
+                fmt=".2f")
+    plt.show()
+
+
+compareTwoPCAs(red_pca_vec_arr, 'red Pca ', white_pca_vec_arr, 'white Pca ')
+plt.show()
+compareTwoPCAs(red_pca_vec_arr, 'red Pca ', all_pca_vec_arr, 'all Pca ')
+plt.show()
+compareTwoPCAs(white_pca_vec_arr, 'white PCA ', all_pca_vec_arr, 'all Pca ')
+plt.show()
 
 
 # Question number 3
@@ -682,7 +732,7 @@ for i in range(11):
     combinations_list.append(Combination(min_combination, min_rmse))
 attribute_combinations_list.append((attribute, combinations_list))
 
-fig, axs = plt.subplots(6, 2, figsize=(25, 45))
+fig, axs = plt.subplots(6, 2, figsize=(15, 20))
 for attribute in range(len(X.columns.tolist())):
     xs = [i + 1 for i in range(10)]
     ys = [comb.get_rmse() for comb in attribute_combinations_list[attribute][1]]
@@ -704,6 +754,7 @@ axs[int(attribute / 2), int(attribute % 2)].set_title(attribute_combinations_lis
 axs[int(attribute / 2), int(attribute % 2)].plot(xs, ys)
 ##
 fig.tight_layout(pad=10.0)
+plt.show()
 
 i = 11
 print('for ' + data.columns.tolist()[i] + ':')
