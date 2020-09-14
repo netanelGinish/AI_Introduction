@@ -1,3 +1,4 @@
+# %% [code]
 from sklearn.preprocessing import PolynomialFeatures
 # from imblearn.over_sampling import SMOTE
 from sklearn.pipeline import Pipeline
@@ -34,6 +35,8 @@ from keras.layers import Dense
 import tensorflow as tf
 
 np.set_printoptions(threshold=np.inf)
+
+# %% [code]
 
 # # White Wines
 # white_raw_data = pd.read_csv("clean_white.csv")
@@ -134,10 +137,26 @@ np.set_printoptions(threshold=np.inf)
 #             fmt=".2f")
 # plt.show()
 
-File_name = 'normalized_clean_data_red.csv'
-# File_name = 'normalized_clean_data_white.csv'
+# %% [markdown]
+# ## File name:
 
-data = pd.read_csv(File_name)
+# %% [code]
+# FN = File Name
+
+
+normalized_clean_data_FN = 'normalized_clean_data_red.csv'
+oversampled_clean_data_FN = 'oversampled_clean_data_red.csv'
+clean_data_FN = 'clean_red.csv'
+
+# normalized_clean_data_FN = 'normalized_clean_data_white.csv'
+# oversampled_clean_data_FN = 'oversampled_clean_data_white.csv'
+# clean_data_FN = 'clean_white.csv'
+
+# %% [code]
+# %matplotlib inline
+
+# %% [code]
+data = pd.read_csv(normalized_clean_data_FN)
 X = data.drop(['quality'], axis=1)
 Y = data['quality']
 data.head()
@@ -146,46 +165,55 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20, random
 
 Y.hist()
 plt.show()
-# Question 1.a - Regrestion
-# we'll try out three regresion models and compair them.
-# 1. linear and polynomial regrestion
-# 2. SVM Regresor
-# 3. neural network regresor
 
+# %% [markdown]
+# # Question 1.a - Regrestion
+# ##### we'll try out three regresion models and compair them.
+# ##### 1. linear and polynomial regrestion
+# ##### 2. SVM Regresor
+# ##### 3. neural network regresor
 
-# Linear Regrestion
+# %% [markdown]
+# ## Linear Regrestion
 
+# %% [code]
 reg = LinearRegression().fit(X_train, Y_train)
-print('r2 score = ', reg.score(X_test, Y_test))
+print('linear regression r2 score = ', reg.score(X_test, Y_test))
 
 a = reg.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('train_rmse =', train_rmse)
+train_mse = (mean_squared_error(a, Y_train))
+print('linear regression train_mse =', train_mse)
 b = reg.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('test_rmse =', test_rmse)
+test_mse = (mean_squared_error(b, Y_test))
+print('linear regression test_mse =', test_mse)
 
-# Polynomial Regression
+# %% [markdown]
+# ## Polynomial Regression
 
-
-p_reg = Pipeline([('poly', PolynomialFeatures(degree=2)),
+# %% [code]
+p_reg = Pipeline([('poly', PolynomialFeatures(degree=3)),
                   ('linear', LinearRegression(fit_intercept=False))])
 
 p_reg = p_reg.fit(X_train, Y_train)
+p_reg.named_steps['linear'].coef_
 
 from sklearn.metrics import mean_squared_error
 
-print('r2 score = ', p_reg.score(X_test, Y_test))
+print('polynomial regression r2 score = ', p_reg.score(X_test, Y_test))
 a = p_reg.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('train_rmse =', train_rmse)
+train_mse = (mean_squared_error(a, Y_train))
+print('polynomial regression train_mse =', train_mse)
 b = p_reg.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('test_rmse =', test_rmse)
+test_mse = (mean_squared_error(b, Y_test))
+print('polynomial regression test_mse =', test_mse)
 
-# SVM Regresor
+# %% [markdown]
+# ## SVM Regresors
+# #### 1. rbf kernel
+# #### 2. linear kernel
+# #### 3. polynomial kernel
 
-
+# %% [code]
 SVR_rbf = svm.SVR(kernel='rbf')
 SVR_lin = svm.SVR(kernel='linear')
 SVR_poly = svm.SVR(kernel='poly', degree=2)
@@ -195,30 +223,32 @@ SVR_poly.fit(X_train, Y_train)
 
 print('SVR_rbf score = ', SVR_rbf.score(X_train, Y_train))
 a = SVR_rbf.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('SVR_rbf train_rmse = ', train_rmse)
+train_mse = (mean_squared_error(a, Y_train))
+print('SVR_rbf train_mse = ', train_mse)
 b = SVR_rbf.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('SVR_rbf test_rmse = ', test_rmse, '\n')
+test_mse = (mean_squared_error(b, Y_test))
+print('SVR_rbf test_mse = ', test_mse, '\n')
 
 print('SVR_lin score = ', SVR_lin.score(X_train, Y_train))
 a = SVR_lin.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('SVR_lin train_rmse = ', train_rmse)
+train_mse = (mean_squared_error(a, Y_train))
+print('SVR_lin train_mse = ', train_mse)
 b = SVR_lin.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('SVR_lin test_rmse = ', test_rmse, '\n')
+test_mse = (mean_squared_error(b, Y_test))
+print('SVR_lin test_mse = ', test_mse, '\n')
 
 print('SVR_poly score = ', SVR_poly.score(X_train, Y_train))
 a = SVR_poly.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('SVR_poly train_rmse = ', train_rmse)
+train_mse = (mean_squared_error(a, Y_train))
+print('SVR_poly train_mse = ', train_mse)
 b = SVR_poly.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('SVR_poly test_rmse = ', test_rmse)
+test_mse = (mean_squared_error(b, Y_test))
+print('SVR_poly test_mse = ', test_mse)
 
-# Deep Neural Network Regresor
+# %% [markdown]
+# # Deep Neural Network Regresor
 
+# %% [code]
 import keras
 from keras.models import Sequential
 from keras.layers import Input, Dense
@@ -226,47 +256,109 @@ from keras.layers import Dropout
 from keras.models import Model
 import tensorflow as tf
 
-DNN_model = Sequential()
-DNN_model.add(Dense(100, input_dim=11, activation='selu'))
-DNN_model.add(Dropout(0.1))
-DNN_model.add(Dense(128, activation='selu'))
-DNN_model.add(Dropout(0.1))
-DNN_model.add(Dense(128, activation='selu'))
-DNN_model.add(Dropout(0.1))
-DNN_model.add(Dense(2, activation='selu'))
-DNN_model.add(Dense(1))
+# %% [code]
+DNN_model_selu = Sequential()
+DNN_model_selu.add(Dense(100, input_dim=11, activation="selu"))
+DNN_model_selu.add(Dropout(0.1))
+DNN_model_selu.add(Dense(128, activation="selu"))
+DNN_model_selu.add(Dropout(0.1))
+DNN_model_selu.add(Dense(128, activation="selu"))
+DNN_model_selu.add(Dropout(0.1))
+DNN_model_selu.add(Dense(2, activation="selu"))
+DNN_model_selu.add(Dense(1))
 
-DNN_model.compile(loss="mean_squared_error", optimizer="adam", metrics=["mean_squared_error"])
-history = DNN_model.fit(X_train, Y_train, epochs=100, validation_split=0.3)
+# %% [code]
+DNN_model_relu = Sequential()
+DNN_model_relu.add(Dense(100, input_dim=11, activation="relu"))
+DNN_model_relu.add(Dropout(0.1))
+DNN_model_relu.add(Dense(128, activation="relu"))
+DNN_model_relu.add(Dropout(0.1))
+DNN_model_relu.add(Dense(128, activation="relu"))
+DNN_model_relu.add(Dropout(0.1))
+DNN_model_relu.add(Dense(2, activation="relu"))
+DNN_model_relu.add(Dense(1))
 
+# %% [code]
+DNN_model_soft_max = Sequential()
+DNN_model_soft_max.add(Dense(100, input_dim=11, activation="softmax"))
+DNN_model_soft_max.add(Dropout(0.1))
+DNN_model_soft_max.add(Dense(128, activation="softmax"))
+DNN_model_soft_max.add(Dropout(0.1))
+DNN_model_soft_max.add(Dense(128, activation="softmax"))
+DNN_model_soft_max.add(Dropout(0.1))
+DNN_model_soft_max.add(Dense(2, activation="softmax"))
+DNN_model_soft_max.add(Dense(1))
+
+# %% [code]
+DNN_model_selu.compile(loss="mean_squared_error", optimizer="adam", metrics=["mean_squared_error"])
+# history = NN_model.fit(X_train, y_train, epochs=100, validation_split=0.2, callbacks=[tf.keras.callbacks.EarlyStopping(patience=2)])
+selu_history = DNN_model_selu.fit(X_train, Y_train, epochs=100, validation_split=0.3)
+
+# %% [code]
+DNN_model_relu.compile(loss="mean_squared_error", optimizer="adam", metrics=["mean_squared_error"])
+# history = NN_model.fit(X_train, y_train, epochs=100, validation_split=0.2, callbacks=[tf.keras.callbacks.EarlyStopping(patience=2)])
+relu_history = DNN_model_relu.fit(X_train, Y_train, epochs=100, validation_split=0.3)
+
+# %% [code]
+DNN_model_soft_max.compile(loss="mean_squared_error", optimizer="adam", metrics=["mean_squared_error"])
+# history = NN_model.fit(X_train, y_train, epochs=100, validation_split=0.2, callbacks=[tf.keras.callbacks.EarlyStopping(patience=2)])
+soft_max_history = DNN_model_soft_max.fit(X_train, Y_train, epochs=100, validation_split=0.3)
+
+# %% [code]
 # list all data in history
-print(history.history.keys())
+print(selu_history.history.keys())
+print(relu_history.history.keys())
 # summarize history for accuracy
 plt.figure(figsize=(10, 5))
-plt.plot(history.history['mean_squared_error'])
-plt.plot(history.history['val_mean_squared_error'])
+plt.plot(selu_history.history['mean_squared_error'], label='selu')
+# plt.plot(selu_history.history['val_mean_squared_error'], label='selu')
+plt.plot(relu_history.history['mean_squared_error'], label='relu')
+# plt.plot(relu_history.history['val_mean_squared_error'], label='relu')
+plt.plot(soft_max_history.history['mean_squared_error'], label='soft max')
+# plt.plot(soft_max_history.history['val_mean_squared_error'], label='soft max')
 plt.title('mean_squared_error')
 plt.ylabel('mean_squared_error')
 plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
+plt.legend()
 plt.show()
-# summarize history for loss
-plt.figure(figsize=(10, 5))
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+# # summarize history for loss
+# plt.figure(figsize = (12,7))
+# plt.plot(selu_history.history['loss'], label='selu')
+# # plt.plot(selu_history.history['val_loss'], label='selu')
+# plt.plot(relu_history.history['loss'], label='relu')
+# # plt.plot(relu_history.history['val_loss'], label='relu')
+# plt.plot(soft_max_history.history['loss'], label='soft max')
+# # plt.plot(soft_max_history.history['val_loss'], label='soft max')
+# plt.title('model loss')
+# plt.ylabel('loss')
+# plt.xlabel('epoch')
+# plt.legend()
+# plt.show()
 
-a = DNN_model.predict(X_train)
-train_rmse = (mean_squared_error(a, Y_train)) ** 0.5
-print('NN train_rmse = ', train_rmse)
-b = DNN_model.predict(X_test)
-test_rmse = (mean_squared_error(b, Y_test)) ** 0.5
-print('NN test_rmse = ', test_rmse)
+# %% [code]
+a_selu = DNN_model_selu.predict(X_train)
+train_mse = (mean_squared_error(a_selu, Y_train))
+print('selu NN train_mse = ', train_mse)
+b_selu = DNN_model_selu.predict(X_test)
+test_mse = (mean_squared_error(b_selu, Y_test))
+print('selu NN test_mse = ', test_mse)
 
+a_relu = DNN_model_relu.predict(X_train)
+train_mse = (mean_squared_error(a_relu, Y_train))
+print('relu NN train_mse = ', train_mse)
+b_relu = DNN_model_relu.predict(X_test)
+test_mse = (mean_squared_error(b_relu, Y_test))
+print('relu NN test_mse = ', test_mse)
+
+a_soft_max = DNN_model_soft_max.predict(X_train)
+train_mse = (mean_squared_error(a_relu, Y_train))
+print('soft max NN train_mse = ', train_mse)
+b_soft_max = DNN_model_soft_max.predict(X_test)
+test_mse = (mean_squared_error(b_relu, Y_test))
+print('soft max NN test_mse = ', test_mse)
+
+
+# %% [code]
 
 # # # # # # # # # # # # # # # # # # # # # # # Clustering:
 def points_for_cluster_df(clustering_labels):
@@ -293,39 +385,50 @@ def plot_silhouette_score(clustering_method, clusters, s_scores):
     # plt.axhline(0, lw=0.5, color='black')
     # plt.axvline(0, lw=0.5, color='black')
     plt.legend()
+    plt.show()
 
 
-# # # # # BIRCH
-s_scores = []
-clusters = range(2, 11)
+# %% [markdown]
+# # BIRCH
+
+# %% [code]
+birch_s_scores = []
+clusters = range(2, 180)
 for i in clusters:
     br = Birch(n_clusters=i).fit(X_train)
-    s_scores.append(silhouette_score(X_train, br.labels_))
+    birch_s_scores.append(silhouette_score(X_train, br.labels_))
 
-plot_silhouette_score('Birch', clusters, s_scores)
-plt.show()
+# %% [code]
+plot_silhouette_score('Birch', clusters, birch_s_scores)
 
-# Optimize Birch clustering with 4 clusters:
-optimize_br = Birch(n_clusters=4).fit(X_train)
+# %% [code]
+# Optimize Birch clustering with 105 clusters:
+optimize_br = Birch(n_clusters=105).fit(X_train)
 points_for_cluster_df(optimize_br.labels_)
 
-# # # # # K-Means:
-s_scores = []
-clusters = range(2, 11)
+# %% [markdown]
+# # K-Means
+
+# %% [code]
+km_s_scores = []
+clusters = range(2, 180)
 for i in clusters:
     k_means = KMeans(n_clusters=i, random_state=0).fit(X_train)
-    s_scores.append(silhouette_score(X_train, k_means.labels_))
+    km_s_scores.append(silhouette_score(X_train, k_means.labels_))
 
-plot_silhouette_score('K-Means', clusters, s_scores)
-plt.show()
+# %% [code]
+plot_silhouette_score('K-Means', clusters, km_s_scores)
 
-# Optimize K-Means clustering 5 clusters:
+# %% [code]
+# Optimize K-Means clustering 105 clusters:
 
-optimize_km = KMeans(n_clusters=5, random_state=0).fit(X_train)
+optimize_km = KMeans(n_clusters=105, random_state=0).fit(X_train)
 points_for_cluster_df(optimize_km.labels_)
 
-# # # # # MeanShift:
+# %% [markdown]
+# # MeanShift
 
+# %% [code]
 # Optimize MeanShift clustering using estimate_bandwidth:
 
 optimize_bandwidth = estimate_bandwidth(X_train)
@@ -336,8 +439,10 @@ print(optimize_bandwidth)
 print()
 
 
-# # # # # Predict qualities with the clusters mean quality:
+# %% [markdown]
+# ### Predict qualities with the clusters mean quality
 
+# %% [code]
 def mean_quality_for_cluster_dictionary(df, clustering):
     mean_qualities = {}
     for i in df[clustering].unique():
@@ -345,12 +450,12 @@ def mean_quality_for_cluster_dictionary(df, clustering):
     return mean_qualities
 
 
-def cluster_score(cluster_quality_dict: dict, test_cluster_lables: pd.Series, real_test_values: pd.Series):
+def cluster_mse_score(cluster_quality_dict: dict, test_cluster_lables: pd.Series, real_test_values: pd.Series):
     predicted_qualities = []
     for i in test_cluster_lables:
         predicted_qualities.append(cluster_quality_dict[i])
     predicted_qualities = pd.Series(predicted_qualities)
-    return mean_squared_error(predicted_qualities, real_test_values) ** 0.5
+    return mean_squared_error(predicted_qualities, real_test_values)
 
 
 train_with_clusters = X_train.copy()
@@ -365,6 +470,7 @@ br_qualities_dict = mean_quality_for_cluster_dictionary(train_with_clusters, 'br
 train_with_clusters['km_cluster'] = optimize_km.labels_
 km_qualities_dict = mean_quality_for_cluster_dictionary(train_with_clusters, 'km_cluster')
 
+print()
 print('br_qualities_dict: ', br_qualities_dict)
 print()
 print('km_qualities_dict: ', km_qualities_dict)
@@ -377,19 +483,21 @@ test['quality'] = Y_test
 
 # Birch:
 br_test_labels = optimize_br.predict(X_test)
-print('Birch rmse score: ', cluster_score(br_qualities_dict, br_test_labels, test['quality']))
+print('Birch mse: ', cluster_mse_score(br_qualities_dict, br_test_labels, test['quality']))
 
 # K-Means
 km_test_labels = optimize_km.predict(X_test)
-print('K-Means rmse score: ', cluster_score(km_qualities_dict, km_test_labels, test['quality']))
+print('K-Means mse: ', cluster_mse_score(km_qualities_dict, km_test_labels, test['quality']))
 
 # MeanShift:
 ms_test_labels = optimize_ms.predict(X_test)
-print('Mean Shift rmse score: ', cluster_score(ms_qualities_dict, ms_test_labels, test['quality']))
+print('Mean Shift mse: ', cluster_mse_score(ms_qualities_dict, ms_test_labels, test['quality']))
 
 
-# # # # # # # # Dimension Reduction
+# %% [markdown]
+# # Dimension Reduction
 
+# %% [code]
 def printPrejections(reducted_df: pd.DataFrame, model_name: str):
     for i in range(0, 2):
         for j in range(i + 1, 3):
@@ -412,10 +520,13 @@ def printPrejections(reducted_df: pd.DataFrame, model_name: str):
             plt.show()
 
 
-## pca
-from sklearn.decomposition import PCA
+# %% [markdown]
+# ## pca
 
-pca = PCA(n_components=3)
+# %% [code]
+from sklearn.decomposition import PCA, IncrementalPCA
+
+pca = IncrementalPCA(n_components=3)
 pca.fit(X)
 
 print(pca.explained_variance_ratio_)
@@ -439,20 +550,22 @@ plt.show()
 
 printPrejections(pca_df, 'PCA')
 
-## Auto Encoder
+# %% [markdown]
+# ## Auto Encoder
 
+# %% [code]
 input_dim = Input(shape=(11,))
 # DEFINE THE DIMENSION OF ENCODER ASSUMED 3
 encoding_dim = 3
 # DEFINE THE ENCODER LAYERS
-encoded1 = Dense(9, activation='selu')(input_dim)
-encoded2 = Dense(6, activation='selu')(encoded1)
-encoded3 = Dense(4, activation='selu')(encoded2)
+encoded1 = Dense(9, activation='relu')(input_dim)
+encoded2 = Dense(6, activation='relu')(encoded1)
+encoded3 = Dense(4, activation='relu')(encoded2)
 encoded4 = Dense(encoding_dim, activation='relu')(encoded3)
 # DEFINE THE DECODER LAYERS
-decoded1 = Dense(4, activation='selu')(encoded4)
-decoded2 = Dense(6, activation='selu')(decoded1)
-decoded3 = Dense(9, activation='selu')(decoded2)
+decoded1 = Dense(4, activation='relu')(encoded4)
+decoded2 = Dense(6, activation='relu')(decoded1)
+decoded3 = Dense(9, activation='relu')(decoded2)
 decoded4 = Dense(11, activation='sigmoid')(decoded3)
 # COMBINE ENCODER AND DECODER INTO AN AUTOENCODER MODEL
 autoencoder = Model(input_dim, decoded4)
@@ -479,8 +592,10 @@ plt.show()
 
 printPrejections(AE_data, 'Auto Encoder')
 
-## LLE
+# %% [markdown]
+# ## LLE
 
+# %% [code]
 from sklearn.manifold import LocallyLinearEmbedding
 
 embedding = LocallyLinearEmbedding(n_components=3)
@@ -503,8 +618,10 @@ plt.show()
 
 printPrejections(LLE_data, 'LLE')
 
-## Linear Models Compereson
+# %% [markdown]
+# # Linear Models Compereson
 
+# %% [code]
 import math
 
 
@@ -533,7 +650,7 @@ def continues_jacard(vec1: np.ndarray, vec2: np.ndarray):
 
 def vectorComperesion(vec1, vec1_name: str, vec2, vec2_name: str):
     print(f'radial angle between {vec1_name} and {vec2_name} = {angle(vec1, vec2)}')
-    print(f'cosine test between {vec1_name} and {vec2_name} = {math.cos(angle(vec1, vec2))}')
+    print(f'***cosine test between {vec1_name} and {vec2_name} = {math.cos(angle(vec1, vec2))}***')
     print(f'euclidean distance between {vec1_name} and {vec2_name} = {np.linalg.norm(vec1 - vec2)}')
     jac = continues_jacard(vec1, vec2)
     if jac != -1:
@@ -556,12 +673,17 @@ def threeVectorComperesion(vec1, vec1_name: str, vec2, vec2_name: str, vec3, vec
             vectorComperesion(vec_list[i][0], vec_list[i][1], vec_list[j][0], vec_list[j][1])
 
 
+# %% [code]
 red_file = 'clean_red.csv'
 white_file = 'clean_white.csv'
 red_data = pd.read_csv(red_file)
 white_data = pd.read_csv(white_file)
 all_data = pd.concat([red_data, white_data])
 
+# %% [code]
+all_data.head()
+
+# %% [code]
 all_mean = all_data.drop(['quality'], axis=1).mean()
 all_std = all_data.drop(['quality'], axis=1).std()
 normalized_all_X = (all_data.drop(['quality'], axis=1) - all_mean) / all_std
@@ -576,6 +698,7 @@ white_X_train, white_X_test, white_y_train, white_y_test = \
 all_X_train, all_X_test, all_y_train, all_y_test = \
     train_test_split(normalized_all_X, all_data['quality'], test_size=0.20, random_state=42)
 
+# %% [code]
 # Linear Regrestion
 
 red_lin_reg = LinearRegression().fit(red_X_train, red_y_train)
@@ -589,6 +712,7 @@ all_lin_reg_vec = np.array(all_lin_reg.coef_)
 threeVectorComperesion(red_lin_reg_vec, 'red_lin_reg_vec', white_lin_reg_vec, 'white_lin_reg_vec',
                        all_lin_reg_vec, 'all_lin_reg_vec')
 
+# %% [code]
 # linear SVM
 
 
@@ -603,10 +727,11 @@ all_lin_SVM_vec = np.array(all_lin_SVM.coef_[0])
 threeVectorComperesion(red_lin_SVM_vec, 'red_lin_SVM_vec', white_lin_SVM_vec, 'white_lin_SVM_vec',
                        all_lin_SVM_vec, 'all_lin_SVM_vec')
 
+# %% [code]
 # PCA
-red_pca = PCA(n_components=3)
-white_pca = PCA(n_components=3)
-all_pca = PCA(n_components=3)
+red_pca = IncrementalPCA(n_components=3)
+white_pca = IncrementalPCA(n_components=3)
+all_pca = IncrementalPCA(n_components=3)
 
 red_pca.fit(normalized_red_X)
 white_pca.fit(normalized_white_X)
@@ -627,6 +752,8 @@ white_pca_vec_arr = [np.array(white_pca.components_[0]), np.array(white_pca.comp
                      np.array(white_pca.components_[2])]
 all_pca_vec_arr = [np.array(all_pca.components_[0]), np.array(all_pca.components_[1]), np.array(all_pca.components_[2])]
 
+
+# %% [code]
 
 def compareTwoPCAs(PCA_vecs1, PCA_vecs1_name: str, PCA_vecs2, PCA_vecs2_name: str):
     table = []
@@ -652,32 +779,35 @@ compareTwoPCAs(white_pca_vec_arr, 'white PCA ', all_pca_vec_arr, 'all Pca ')
 plt.show()
 
 
-# Question number 3
+# %% [markdown]
+# # Question number 3
 
-# 3A- Exploring the learning ease of each attribute:
+# %% [markdown]
+# ## 3A- Exploring the learning ease of each attribute:
 
+# %% [code]
 class Combination:
-    def __init__(self, att_comb, rmse):
+    def __init__(self, att_comb, mse):
         self.att_comb = att_comb
-        self.rmse = rmse
+        self.mse = mse
 
     def get_att_comb(self):
         return self.att_comb
 
-    def get_rmse(self):
-        return self.rmse
+    def get_mse(self):
+        return self.mse
 
     def get_number_of_atributes(self):
         return len(self.att_comb)
 
 
-def calc_lin_reg_rmse(X, combination, attribute_df) -> float:
+def calc_lin_reg_mse(X, combination, attribute_df) -> float:
     X_train, X_test, attribute_train, attribute_test = train_test_split(X[[col for col in combination]],
                                                                         attribute_df, test_size=0.18, random_state=42)
     reg = LinearRegression().fit(X_train, attribute_train)
     attribute_pred = reg.predict(X_test)
 
-    return mean_squared_error(attribute_test, attribute_pred) ** 0.5
+    return mean_squared_error(attribute_test, attribute_pred)
 
 
 def open_tuple_with_dict(dictionary, tup):
@@ -685,7 +815,10 @@ def open_tuple_with_dict(dictionary, tup):
     return tuple(vals_list)
 
 
-# # Linear regresion RMSE of attribute,
+# %% [code]
+
+
+# # Linear regresion MSE of attribute,
 # # depending on the number of attributes used in the learning process
 
 attribute_combinations_list = []
@@ -700,15 +833,15 @@ for attribute in X.columns.tolist():
     current_X.columns = range(10)
     combinations_list = []
     for i in range(10):
-        min_rmse = float('inf')
+        min_mse = float('inf')
         min_combination = ()
         for combination in combinations(range(10), i + 1):
-            lin_reg_calc = calc_lin_reg_rmse(current_X, combination, attribute_df)
-            if lin_reg_calc < min_rmse:
-                min_rmse = lin_reg_calc
+            lin_reg_calc = calc_lin_reg_mse(current_X, combination, attribute_df)
+            if lin_reg_calc < min_mse:
+                min_mse = lin_reg_calc
                 min_combination = combination
         min_combination = open_tuple_with_dict(attributes_dict, min_combination)
-        combinations_list.append(Combination(min_combination, min_rmse))
+        combinations_list.append(Combination(min_combination, min_mse))
     attribute_combinations_list.append((attribute, combinations_list))
 
 attribute = 'quality'
@@ -721,23 +854,25 @@ for i in range(11):
 current_X.columns = range(11)
 combinations_list = []
 for i in range(11):
-    min_rmse = float('inf')
+    min_mse = float('inf')
     min_combination = ()
     for combination in combinations(range(11), i + 1):
-        lin_reg_calc = calc_lin_reg_rmse(current_X, combination, attribute_df)
-        if lin_reg_calc < min_rmse:
-            min_rmse = lin_reg_calc
+        lin_reg_calc = calc_lin_reg_mse(current_X, combination, attribute_df)
+        if lin_reg_calc < min_mse:
+            min_mse = lin_reg_calc
             min_combination = combination
     min_combination = open_tuple_with_dict(attributes_dict, min_combination)
-    combinations_list.append(Combination(min_combination, min_rmse))
+    combinations_list.append(Combination(min_combination, min_mse))
 attribute_combinations_list.append((attribute, combinations_list))
 
-fig, axs = plt.subplots(6, 2, figsize=(15, 20))
+# %% [code]
+
+fig, axs = plt.subplots(6, 2, figsize=(25, 45))
 for attribute in range(len(X.columns.tolist())):
     xs = [i + 1 for i in range(10)]
-    ys = [comb.get_rmse() for comb in attribute_combinations_list[attribute][1]]
+    ys = [comb.get_mse() for comb in attribute_combinations_list[attribute][1]]
     axs[int(attribute / 2), int(attribute % 2)].set_xlabel('number of attributes', fontsize=16)
-    axs[int(attribute / 2), int(attribute % 2)].set_ylabel('min rmse', fontsize=16)
+    axs[int(attribute / 2), int(attribute % 2)].set_ylabel('min mse', fontsize=16)
     #     axs[int(attribute / 2), int(attribute % 2)].axhline(0, lw=0.5, color='black')
     #     axs[int(attribute / 2), int(attribute % 2)].axvline(0, lw=0.5, color='black')
     axs[int(attribute / 2), int(attribute % 2)].set_title(attribute_combinations_list[attribute][0], fontsize=24)
@@ -745,23 +880,25 @@ for attribute in range(len(X.columns.tolist())):
 # quality:
 attribute = 11
 xs = [i + 1 for i in range(11)]
-ys = [comb.get_rmse() for comb in attribute_combinations_list[attribute][1]]
+ys = [comb.get_mse() for comb in attribute_combinations_list[attribute][1]]
 axs[int(attribute / 2), int(attribute % 2)].set_xlabel('number of attributes', fontsize=16)
-axs[int(attribute / 2), int(attribute % 2)].set_ylabel('min rmse', fontsize=16)
+axs[int(attribute / 2), int(attribute % 2)].set_ylabel('min mse', fontsize=16)
 #     axs[int(attribute / 2), int(attribute % 2)].axhline(0, lw=0.5, color='black')
 #     axs[int(attribute / 2), int(attribute % 2)].axvline(0, lw=0.5, color='black')
 axs[int(attribute / 2), int(attribute % 2)].set_title(attribute_combinations_list[attribute][0], fontsize=24)
 axs[int(attribute / 2), int(attribute % 2)].plot(xs, ys)
 ##
 fig.tight_layout(pad=10.0)
-plt.show()
 
-i = 11
+# %% [code]
+
 print('for ' + data.columns.tolist()[i] + ':')
 for comb in attribute_combinations_list[i][1]:
     print('    for ' + str(comb.get_number_of_atributes()) + ' attributes combination: ')
-    print('    the min rmse is: ' + str(comb.get_rmse()) + ', with the combination: ')
+    print('    the min mse is: ' + str(comb.get_mse()) + ', with the combination: ')
     print('    ' + str(comb.get_att_comb()))
+
+# %% [code]
 
 
 # # 3B- Optimal result for the attributes learning
@@ -781,6 +918,7 @@ def print_optimal_learning_results(num_of_att_list, attribute_combinations_list)
 
 
 num_of_att_list = [4, 3, 2, 4, 6, 9, 7, 4, 4, 5, 5]
+
 print_optimal_learning_results(num_of_att_list, attribute_combinations_list)
 
 n = 11
@@ -885,37 +1023,224 @@ for node, t in description.items():
 plt.axis('off')
 plt.show()
 
+# %% [code]
+learning_features = {}
+for i in range(11):
+    comb = attribute_combinations_list[i][1][num_of_att_list[i]]
+    learning_features[data.columns.tolist()[i]] = comb.get_att_comb()
+    print('for ' + data.columns.tolist()[i] + ':')
+    print('    for ' + str(comb.get_number_of_atributes()) + ' attributes combination: ')
+    print('    the min mse is: ' + str(comb.get_mse()) + ', with the combination: ')
+    print('    ' + str(comb.get_att_comb()))
 
-# World's greatest grape
+print()
+print(learning_features)
+learning_features_list_of_tuples = [learning_features[feature] for feature in learning_features]
+learning_features_list_of_lists = [[feature for feature in tup] for tup in learning_features_list_of_tuples]
+learning_features_df = pd.DataFrame(learning_features_list_of_lists).T
+learning_features_df.columns = [feature for feature in learning_features]
+learning_features_df = learning_features_df.fillna(value='')
 
 
-def CustumLossFunction(x: list, model):
+# %% [code]
+def learning_score(number_of_features, MSE):
+    return math.sqrt(number_of_features) * MSE
+
+
+num_of_att_list = [4, 3, 2, 4, 6, 9, 7, 4, 4, 5, 5]
+
+learning_dict = {}
+for i in range(0, 11):
+    comb = attribute_combinations_list[i][1][num_of_att_list[i]]
+    learning_dict[data.columns.tolist()[i]] = learning_score(comb.get_number_of_atributes(), comb.get_mse())
+    print(
+        f'the learning score for {data.columns.tolist()[i]} is:  {learning_score(comb.get_number_of_atributes(), comb.get_mse())}')
+
+print({k: v for k, v in sorted(learning_dict.items(), key=lambda item: item[1])})
+
+# %% [markdown]
+# # World's greatest grape
+
+# %% [code]
+unnormal = pd.read_csv(oversampled_clean_data_FN).drop(['quality'], axis=1)
+mean = unnormal.mean()
+std = unnormal.std()
+
+
+# %% [code]
+def CustumLossFunctionSVM_rbf(x: list):
     X_df = pd.DataFrame([x], columns=['fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar',
                                       'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide',
                                       'density', 'pH', 'sulphates', 'alcohol'])
-    prediction_value = model.predict(X_df)
-    while type(prediction_value) != int:
+    prediction_value = SVR_rbf.predict(X_df)
+    while type(prediction_value) == np.ndarray:
+        prediction_value = prediction_value[0]
+    return abs(10 - prediction_value)
+
+
+def CustumLossFunctionDNN(x: list):
+    X_df = pd.DataFrame([x], columns=['fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar',
+                                      'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide',
+                                      'density', 'pH', 'sulphates', 'alcohol'])
+    prediction_value = DNN_model_relu.predict(X_df)
+    while type(prediction_value) == np.ndarray:
         prediction_value = prediction_value[0]
     return abs(10 - prediction_value)
 
 
 methods = ['Nelder-Mead', 'Powell', 'CG', 'BFGS', 'L-BFGS-B', 'TNC', 'COBYLA', 'SLSQP', 'trust-constr']
 
-model = SVR_rbf
+# %% [code]
 min_error = 100
 best_method = ''
-x0 = list(data[data.quality == 9].mean().to_frame().T.drop(['quality'], axis=1).values[0])
+x0 = list(data[data.quality == data.quality.max()].mean().to_frame().T.drop(['quality'], axis=1).values[0])
+print(x0)
 for m in methods:
-    res = minimize(CustumLossFunction, x0, method=m, tol=1e-6, options={'maxiter': 10000})
+    res = minimize(CustumLossFunctionSVM_rbf, x0, method=m, tol=1e-6, options={'maxiter': 10000})
     if res.fun < min_error:
         best_method = m
         min_error = res.fun
 
 print(best_method)
 print(min_error)
-res = minimize(CustumLossFunction, x0, method=best_method, tol=1e-6, options={'maxiter': 10000})
+res = minimize(CustumLossFunctionSVM_rbf, x0, method=best_method, tol=1e-6, options={'maxiter': 10000})
 print('best grape SVR_rbf score: ', SVR_rbf.predict(pd.Series(res.x).to_frame().T)[0])
-print('best grape DNN score: ', DNN_model.predict(pd.Series(res.x).to_frame().T)[0][0])
+print('best grape DNN relu score: ', DNN_model_relu.predict(pd.Series(res.x).to_frame().T)[0][0])
 print('best grape SVR_lin score: ', SVR_lin.predict(pd.Series(res.x).to_frame().T)[0])
 print('best grape SVR_poly score: ', SVR_poly.predict(pd.Series(res.x).to_frame().T)[0])
 print('best grape Linear regression score: ', reg.predict(pd.Series(res.x).to_frame().T)[0])
+
+# %% [code]
+pd.DataFrame([res.x], columns=['fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar',
+                               'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide',
+                               'density', 'pH', 'sulphates', 'alcohol']) * std + mean
+
+# %% [code]
+min_error = 100
+best_method = ''
+x0 = list(data[data.quality == data.quality.max()].mean().to_frame().T.drop(['quality'], axis=1).values[0])
+print(x0)
+for m in methods:
+    res = minimize(CustumLossFunctionDNN, x0, method=m, tol=1e-6, options={'maxiter': 10000})
+    if res.fun < min_error:
+        best_method = m
+        min_error = res.fun
+
+print(best_method)
+print(min_error)
+res = minimize(CustumLossFunctionDNN, x0, method=best_method, tol=1e-6, options={'maxiter': 10000})
+print('best grape SVR_rbf score: ', SVR_rbf.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape DNN relu score: ', DNN_model_relu.predict(pd.Series(res.x).to_frame().T)[0][0])
+print('best grape SVR_lin score: ', SVR_lin.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape SVR_poly score: ', SVR_poly.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape Linear regression score: ', reg.predict(pd.Series(res.x).to_frame().T)[0])
+
+# %% [code]
+pd.DataFrame([res.x], columns=['fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar',
+                               'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide',
+                               'density', 'pH', 'sulphates', 'alcohol']) * std + mean
+
+# %% [code]
+min_error = 100
+best_method = ''
+x0 = list(data[data.quality == data.quality.max()].mean().to_frame().T.drop(['quality'], axis=1).values[0])
+print(x0)
+for m in methods:
+    res = minimize(CustumLossFunctionSVM_rbf, x0, method=m, tol=1e-6, options={'maxiter': 10000})
+    if res.fun < min_error:
+        best_method = m
+        min_error = res.fun
+
+print(best_method)
+print(min_error)
+res = minimize(CustumLossFunctionSVM_rbf, x0, method=best_method, tol=1e-6, options={'maxiter': 10000})
+print('best grape SVR_rbf score: ', SVR_rbf.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape DNN relu score: ', DNN_model_relu.predict(pd.Series(res.x).to_frame().T)[0][0])
+print('best grape SVR_lin score: ', SVR_lin.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape SVR_poly score: ', SVR_poly.predict(pd.Series(res.x).to_frame().T)[0])
+print('best grape Linear regression score: ', reg.predict(pd.Series(res.x).to_frame().T)[0])
+
+# %% [code]
+pd.DataFrame([res.x], columns=['fixed_acidity', 'volatile_acidity', 'citric_acid', 'residual_sugar',
+                               'chlorides', 'free_sulfur_dioxide', 'total_sulfur_dioxide',
+                               'density', 'pH', 'sulphates', 'alcohol']) * std + mean
+
+# %% [code]
+# learning_methods = ['Linear_Regression', 'SVM_rbf', 'SVM_linear', 'SVM_poly']
+
+# %% [code]
+# def calc_learning_mse(X, combination, attribute_df):
+#     X_train, X_test, attribute_train, attribute_test = train_test_split(X[[col for col in combination]],
+#                                                                         attribute_df, test_size=0.18, random_state=42)
+
+#     reg = LinearRegression().fit(X_train, attribute_train)
+#     attribute_pred = reg.predict(X_test)
+#     lin_reg_mse = mean_squared_error(attribute_test, attribute_pred)
+
+#     reg = svm.SVR(kernel='rbf').fit(X_train, attribute_train)
+#     attribute_pred = reg.predict(X_test)
+#     svm_rbf_mse = mean_squared_error(attribute_test, attribute_pred)
+
+#     reg = svm.SVR(kernel='linear').fit(X_train, attribute_train)
+#     attribute_pred = reg.predict(X_test)
+#     svm_linear_mse = mean_squared_error(attribute_test, attribute_pred)
+
+#     reg = svm.SVR(kernel='poly', degree = 2).fit(X_train, attribute_train)
+#     attribute_pred = reg.predict(X_test)
+#     svm_poly_mse = mean_squared_error(attribute_test, attribute_pred)
+
+#     mse_dict = {
+#         learning_methods[0]: lin_reg_mse,
+#         learning_methods[1]: svm_rbf_mse,
+#         learning_methods[2]: svm_linear_mse,
+#         learning_methods[3]: svm_poly_mse,
+#     }
+
+#     return mse_dict
+
+# %% [code]
+# attribute = 'quality'
+# attribute_df = Y.copy()
+# current_X = X.copy()
+# attributes = X.columns.tolist()
+# attributes_dict = {}
+# for i in range(11):
+#     attributes_dict[i] = attributes[i]
+# current_X.columns = range(11)
+# learning_method_combination_list = []
+# for i in range(len(learning_methods)):
+#     learning_method_combination_list.append([learning_methods[i],[]])
+# for k in range(11):
+#     min_comb_and_mse = []
+#     for i in range(len(learning_methods)):
+#         min_comb_and_mse.append((learning_methods[i], float('inf'), ()))
+#     for combination in combinations(range(11), k + 1):
+#         learning_mse = calc_learning_mse(current_X, combination, attribute_df)
+#         for i in range(len(min_comb_and_mse)):
+#             current_learning_mse = learning_mse[min_comb_and_mse[i][0]]
+#             if current_learning_mse < min_comb_and_mse[i][1]:
+#                 min_comb_and_mse[i] = (min_comb_and_mse[i][0], current_learning_mse, combination)
+#     print('finished '+ str(k + 1) + ' combinations')
+#     for i in range(len(min_comb_and_mse)):
+#         tup = min_comb_and_mse[i]
+#         min_mse = tup[1]
+#         min_combination = tup[2]
+#         min_combination = open_tuple_with_dict(attributes_dict, min_combination)
+#         learning_method_combination_list[learning_methods.index(tup[0])][1].append(Combination(min_combination, min_mse))
+
+# %% [code]
+# %matplotlib inline
+# fig, axs = plt.subplots(2, 2, figsize=(25, 15))
+# # quality:
+# attribute = 'quality'
+# attribute_num = 11
+# for i in range(len(learning_methods)):
+#     xs = [j + 1 for j in range(11)]
+#     ys = [comb.get_mse() for comb in learning_method_combination_list[i][1]]
+#     axs[int(i / 2), int(i % 2)].set_xlabel('number of attributes', fontsize=16)
+#     axs[int(i / 2), int(i % 2)].set_ylabel('min mse', fontsize=16)
+#     #     axs[int(attribute / 2), int(attribute % 2)].axhline(0, lw=0.5, color='black')
+#     #     axs[int(attribute / 2), int(attribute % 2)].axvline(0, lw=0.5, color='black')
+#     axs[int(i / 2), int(i % 2)].set_title(attribute + ' ' +learning_method_combination_list[i][0], fontsize=24)
+#     axs[int(i / 2), int(i % 2)].plot(xs, ys)
+#     fig.tight_layout(pad=4.0)
